@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'id+upd-ls=+=k0+f&9tgm&wsj=m2(1u_sk9l+m-$t1hvj@c()1'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
     'myshop-mw.herokuapp.com',
