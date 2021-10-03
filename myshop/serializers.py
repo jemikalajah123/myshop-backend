@@ -1,12 +1,13 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import Product, Order, OrderItem, ShippingAddress, Review
+from .models import Product, Order, OrderItem, ShippingAddress, Review, Category, VoucherSettings, Voucher, Payment, Business
 
 
 class UserSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField(read_only=True)
     _id = serializers.SerializerMethodField(read_only=True)
+    business = serializers.SerializerMethodField(read_only=True)
     isAdmin = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -23,8 +24,13 @@ class UserSerializer(serializers.ModelSerializer):
         name = obj.first_name
         if name == '':
             name = obj.email
-
         return name
+
+    def get_business(self, obj):
+        business = obj.review_set.all()
+        serializer = BusinessSerializer(business, many=True)
+        return serializer.data
+
 
 
 class UserSerializerWithToken(UserSerializer):
@@ -44,6 +50,33 @@ class ReviewSerializer(serializers.ModelSerializer):
     model = Review
     fields = '__all__'
 
+class CategorySerializer(serializers.ModelSerializer):
+  class Meta:
+    model = Category
+    fields = '__all__'
+
+class VoucherSettingsSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = VoucherSettings
+    fields = '__all__'
+
+
+class VoucherSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = Voucher
+    fields = '__all__'
+
+
+class PaymentSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = Payment
+    fields = '__all__'
+
+
+class BusinessSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = Business
+    fields = '__all__'
 
 class ProductSerializer(serializers.ModelSerializer):
   reviews = serializers.SerializerMethodField(read_only=True)

@@ -1,3 +1,4 @@
+from unicodedata import category
 from django.shortcuts import render
 
 from rest_framework.decorators import api_view, permission_classes
@@ -5,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from myshop.models import Product, Review
+from myshop.models import Category, Product, Review
 from myshop.serializers import ProductSerializer
 
 from rest_framework import status
@@ -21,7 +22,7 @@ def getProducts(request):
         name__icontains=query).order_by('-createdAt')
 
     page = request.query_params.get('page')
-    paginator = Paginator(products, 5)
+    paginator = Paginator(products, 20)
 
     try:
         products = paginator.page(page)
@@ -57,15 +58,17 @@ def getProduct(request, pk):
 @permission_classes([IsAdminUser])
 def createProduct(request):
     user = request.user
+    data = request.data
+    category = Category.objects.get(id=data['category'])
 
     product = Product.objects.create(
         user=user,
-        name='Sample Name',
-        price=0,
-        brand='Sample Brand',
-        countInStock=0,
-        category='Sample Category',
-        description=''
+        name=data['name'],
+        price=data['price'],
+        brand=data['brand'],
+        countInStock=data['countInStock'],
+        category=category,
+        description=data['description']
     )
 
     serializer = ProductSerializer(product, many=False)
@@ -77,12 +80,14 @@ def createProduct(request):
 def updateProduct(request, pk):
     data = request.data
     product = Product.objects.get(_id=pk)
+    category = Category.objects.get(id=data['category'])
+
 
     product.name = data['name']
     product.price = data['price']
     product.brand = data['brand']
     product.countInStock = data['countInStock']
-    product.category = data['category']
+    product.category = category
     product.description = data['description']
 
     product.save()

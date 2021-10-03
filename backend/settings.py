@@ -28,6 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     'myshop-mw.herokuapp.com',
+    '127.0.0.1'
 ]
 
 

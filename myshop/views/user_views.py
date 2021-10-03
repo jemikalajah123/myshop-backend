@@ -4,7 +4,8 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 
 from django.contrib.auth.models import User
-from myshop.serializers import ProductSerializer, UserSerializer, UserSerializerWithToken
+from myshop.models import Business
+from myshop.serializers import BusinessSerializer, UserSerializer, UserSerializerWithToken
 # Create your views here.
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -29,11 +30,18 @@ def registerUser(request):
     data = request.data
     try:     
         user = User.objects.create(
-            first_name=data['name'],
+            first_name=data['fullName'],
             username=data['email'],
             email=data['email'],
             password=make_password(data['password'])
         )
+
+        if data['isVendor']:
+            business = Business.objects.create(
+                user=user,
+                shopName=data['shopName'],
+                phoneNumber=data['phoneNumber'],
+            )
 
         serializer = UserSerializerWithToken(user, many=False)
         return Response(serializer.data)
@@ -47,7 +55,7 @@ def updateUserProfile(request):
     user = request.user
     serializer = UserSerializerWithToken(user, many=False)
     data = request.data
-    user.first_name = data['name']
+    user.first_name = data['fullName']
     user.username = data['email']
     user.email = data['email']
 
@@ -86,7 +94,7 @@ def getUserById(request, pk):
 def updateUser(request, pk):
     user = User.objects.get(id=pk)
     data = request.data
-    user.first_name = data['name']
+    user.first_name = data['fullNane']
     user.username = data['email']
     user.email = data['email']
     user.is_staff = data['isAdmin']
